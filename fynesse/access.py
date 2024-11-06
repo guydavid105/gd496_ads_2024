@@ -1,6 +1,6 @@
 from .config import *
 import requests
-import pymysq
+import pymysql
 import csv
 import time
 
