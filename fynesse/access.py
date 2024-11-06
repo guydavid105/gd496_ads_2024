@@ -1,6 +1,8 @@
 from .config import *
 import requests
-import pymysql
+import pymysq
+import csv
+import time
 
 """These are the types of import we might expect in this file
 import httplib2
@@ -73,6 +75,7 @@ def housing_upload_join_data(conn, year):
     csv_writer.writerows(rows)
   print('Storing data for year: ' + str(year))
   cur.execute(f"LOAD DATA LOCAL INFILE '" + csv_file_path + "' INTO TABLE `prices_coordinates_data` FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED by '\"' LINES STARTING BY '' TERMINATED BY '\n';")
+  conn.commit()
   print('Data stored for year: ' + str(year))
 
 def data():
