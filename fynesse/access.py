@@ -3,6 +3,11 @@ import requests
 import pymysql
 import csv
 import time
+import osmnx as ox
+import geopandas as gpd
+import matplotlib.pyplot as plt
+from shapely.geometry import Polygon
+import seaborn as sns
 
 """These are the types of import we might expect in this file
 import httplib2
@@ -77,6 +82,57 @@ def housing_upload_join_data(conn, year):
   cur.execute(f"LOAD DATA LOCAL INFILE '" + csv_file_path + "' INTO TABLE `prices_coordinates_data` FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED by '\"' LINES STARTING BY '' TERMINATED BY '\n';")
   conn.commit()
   print('Data stored for year: ' + str(year))
+
+def buildings_with_addr(latitude, longitude):
+  km_to_deg = 1/111
+  north, south, east, west = latitude+km_to_deg, latitude-km_to_deg, longitude+km_to_deg, longitude-km_to_deg
+  tags = {"building": True}
+  buildings = ox.geometries_from_bbox(north, south, east, west, tags)
+
+  addr_cols = ["addr:housenumber", "addr:street", "addr:postcode"]
+  buildings_with_addr = buildings.dropna(subset=addr_cols)
+  buildings_with_addr['area_sqm'] = buildings.geometry.area * 111000 * 111000
+  buildings_with_addr['addr:street'] = buildings_with_addr['addr:street'].str.upper()
+  return buildings_with_addr
+
+def plot_area(latitude, longitude, pois):
+  km_to_deg = 1/111
+  north, south, east, west = latitude+km_to_deg, latitude-km_to_deg, longitude+km_to_deg, longitude-km_to_deg
+  graph = ox.graph_from_bbox(north, south, east, west)
+  nodes, edges = ox.graph_to_gdfs(graph)
+  area = ox.geocode_to_gdf(place_name)
+
+  fig, ax = plt.subplots()
+  area.plot(ax=ax, facecolor="white")
+  edges.plot(ax=ax, linewidth=1, edgecolor="dimgray")
+
+  ax.set_xlim([west, east])
+  ax.set_ylim([south, north])
+  ax.set_xlabel("longitude")
+  ax.set_ylabel("latitude")
+
+  buildings_with_addr.plot(ax=ax, color="blue", alpha=0.7, markersize=10)
+  plt.tight_layout()
+
+def merge(buildings_with_addr, houses_df):
+  merged_df = pd.merge(buildings_with_addr, houses_df, left_on=['addr:street'], right_on=['primary_addressable_object_name'], how='inner')
+  merged_df[['min_value', 'max_value']] = merged_df['addr:housenumber'].str.split('-', expand=True)
+
+  merged_df['min_value'] = pd.to_numeric(merged_df['min_value'])
+  merged_df['max_value'] = pd.to_numeric(merged_df['max_value'])
+  merged_df['secondary_addressable_object_name'] = pd.to_numeric(merged_df['secondary_addressable_object_name'])
+
+  merged_df = merged_df[(merged_df['secondary_addressable_object_name'] >= merged_df['min_value']) & (merged_df['secondary_addressable_object_name'] <= merged_df['max_value'])]
+  merged_df = merged_df.filter(items=['secondary_addressable_object_name', 'primary_addressable_object_name', 'price', 'date_of_transfer', 'area_sqm'])
+  return merged_df
+
+def plot_price_area_corr(merged_df):
+  plt.figure()
+  sns.scatterplot(x='price', y='area_sqm', data=merged_df)
+  plt.title('Price vs Area')
+  plt.xlabel('Area (sq m)')
+  plt.ylabel('Price')
+  plt.show()
 
 def data():
     """Read the data from the web or local file, returning structured format such as a data frame"""
