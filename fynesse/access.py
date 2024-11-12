@@ -110,8 +110,7 @@ def plot_area(latitude, longitude, place_name, pois):
   ax.set_ylim([south, north])
   ax.set_xlabel("longitude")
   ax.set_ylabel("latitude")
-
-  buildings_with_addr.plot(ax=ax, color="blue", alpha=0.7, markersize=10)
+  pois.plot(ax=ax, color="blue", alpha=0.7, markersize=10)
   plt.tight_layout()
 
 def merge(buildings_with_addr, houses_df):
