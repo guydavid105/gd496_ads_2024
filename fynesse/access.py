@@ -95,7 +95,7 @@ def buildings_with_addr(latitude, longitude):
   buildings_with_addr['addr:street'] = buildings_with_addr['addr:street'].str.upper()
   return buildings_with_addr
 
-def plot_area(latitude, longitude, pois):
+def plot_area(latitude, longitude, place_name, pois):
   km_to_deg = 1/111
   north, south, east, west = latitude+km_to_deg, latitude-km_to_deg, longitude+km_to_deg, longitude-km_to_deg
   graph = ox.graph_from_bbox(north, south, east, west)
