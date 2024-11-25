@@ -3,12 +3,12 @@ import requests
 import pymysql
 import csv
 import time
-import osmnx as ox
-import geopandas as gpd
-import matplotlib.pyplot as plt
-import pandas as pd
-from shapely.geometry import Polygon
-import seaborn as sns
+# import osmnx as ox
+# import geopandas as gpd
+# import matplotlib.pyplot as plt
+# import pandas as pd
+# from shapely.geometry import Polygon
+# import seaborn as sns
 
 """These are the types of import we might expect in this file
 import httplib2
