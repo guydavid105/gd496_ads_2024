@@ -6,6 +6,7 @@ import time
 import osmnx as ox
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import pandas as pd
 from shapely.geometry import Polygon
 import seaborn as sns
 
