@@ -48,8 +48,10 @@ def get_nearby_oas(latitude, longitude, radius_km=1.0):
   min_lon, max_lon = longitude-(radius_km*km_dg), longitude+(radius_km*km_dg)
 
   #%sql USE `ads_2024`;
-  oas = %sql SELECT OA21CD, LAT, LON FROM oa_data WHERE LAT BETWEEN :min_lat AND :max_lat AND LON BETWEEN :min_lon AND :max_lon;
-  oas_df = oas.DataFrame()
+  #oas = %sql SELECT OA21CD, LAT, LON FROM oa_data WHERE LAT BETWEEN :min_lat AND :max_lat AND LON BETWEEN :min_lon AND :max_lon;
+  query = f"SELECT OA21CD, LAT, LON FROM oa_data WHERE LAT BETWEEN {min_lat} AND {max_lat} AND LON BETWEEN {min_lon} AND {max_lon};"
+  #oas_df = oas.DataFrame()
+  oas_df = pd.read_sql_query(query, con=engine)
   oas_df.columns = ["oa21cd", "lat", "lon"]
   oas_set = set(oas_df["oa21cd"])
 
@@ -64,8 +66,10 @@ def get_pois_radius(latitude, longitude, radius_km=1.0):
   min_lat, max_lat = latitude-(radius_km*km_dg), latitude+(radius_km*km_dg)
   min_lon, max_lon = longitude-(radius_km*km_dg), longitude+(radius_km*km_dg)
 
-  pois = %sql SELECT DISTINCT * FROM osm_nodes WHERE lat between :min_lat AND :max_lat AND lon BETWEEN :min_lon AND :max_lon;
-  pois_df = pois.DataFrame()
+  #pois = %sql SELECT DISTINCT * FROM osm_nodes WHERE lat between :min_lat AND :max_lat AND lon BETWEEN :min_lon AND :max_lon;
+  #pois_df = pois.DataFrame()
+  query = f"SELECT DISTINCT * FROM osm_nodes WHERE lat between {min_lat} AND {max_lat} AND lon BETWEEN {min_lon} AND {max_lon};"
+  pois_df = pd.read_sql_query(query, con=engine)
   return pois_df
 
 def nearest_oa(pois_df, oa_df):
@@ -112,18 +116,22 @@ def pois_by_oa(oas, pois_df):
 
 def get_postcodes_from_oas(oas):
   oas_set = set(oas['oa21cd'])
-  %sql USE `ads_2024`;
-  postcodes = %sql SELECT oa21cd, pcd7 FROM postcode_oa_lookup WHERE oa21cd in :oas_set;
-  postcodes_df = postcodes.DataFrame()
+  #%sql USE `ads_2024`;
+  #postcodes = %sql SELECT oa21cd, pcd7 FROM postcode_oa_lookup WHERE oa21cd in :oas_set;
+  #postcodes_df = postcodes.DataFrame()
+  query = f"SELECT oa21cd, pcd7 FROM postcode_oa_lookup WHERE oa21cd in {oas_set};"
+  postcodes_df = pd.read_sql_query(query, con=engine)
   postcodes_df.columns = ["oa21cd", "postcode"]
   return postcodes_df
 
 def get_house_transactions_from_oas(oas):
   postcodes = get_postcodes_from_oas(oas)
   postcodes_set = set(postcodes["postcode"])
-  %sql USE `ads_2024`;
-  houses = %sql SELECT price, postcode, property_type FROM prices_coordinates_data WHERE postcode in :postcodes_set;
-  houses_df = houses.DataFrame()
+  #%sql USE `ads_2024`;
+  #houses = %sql SELECT price, postcode, property_type FROM prices_coordinates_data WHERE postcode in :postcodes_set;
+  #houses_df = houses.DataFrame()
+  query = f"SELECT price, postcode, property_type FROM prices_coordinates_data WHERE postcode in {postcodes_set};"
+  houses_df = pd.read_sql_query(query, con=engine)
   houses_df = houses_df.merge(postcodes, on="postcode")
 
   houses_price = houses_df.groupby("oa21cd")["price"].mean().reset_index()
@@ -142,17 +150,21 @@ def get_house_transactions_from_oas(oas):
 
 def election_from_oas(oas):
   oas_set = set(oas["oa21cd"])
-  %sql USE `ads_2024`;
-  election_oa = %sql SELECT OA21CD, Partyname, Share FROM election_data WHERE OA21CD in :oas_set;
-  election_oa_df = election_oa.DataFrame()
+  #%sql USE `ads_2024`;
+  #election_oa = %sql SELECT OA21CD, Partyname, Share FROM election_data WHERE OA21CD in :oas_set;
+  #election_oa_df = election_oa.DataFrame()
+  query = f"SELECT OA21CD, Partyname, Share FROM election_data WHERE OA21CD in {oas_set};"
+  election_oa_df = pd.read_sql_query(query, con=engine)
   election_oa_df.columns = ["oa21cd", "party", "share"]
   return election_oa_df
 
 def census_from_oas(oas):
   oas_set = set(oas["oa21cd"])
-  %sql USE `ads_2024`;
-  l4 = %sql SELECT OA21CD, L4, total FROM qualification_data WHERE OA21CD IN :oas_set;
-  l4_df = l4.DataFrame()
+  #%sql USE `ads_2024`;
+  #l4 = %sql SELECT OA21CD, L4, total FROM qualification_data WHERE OA21CD IN :oas_set;
+  #l4_df = l4.DataFrame()
+  query = f"SELECT OA21CD, L4, total FROM qualification_data WHERE OA21CD IN {oas_set};"
+  l4_df = pd.read_sql_query(query, con=engine)
   l4_df.columns = ["oa21cd", "L4", "population"]
   l4_df["L4_percent"] = l4_df["L4"]/l4_df["population"]
   l4_df["L4_norm_percent"] = scaler.fit_transform(l4_df[["L4_percent"]])
