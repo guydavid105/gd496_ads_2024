@@ -3,6 +3,11 @@ import requests
 import pymysql
 import csv
 import time
+import requests
+import zipfile
+import io
+import os
+import pandas as pd
 # import osmnx as ox
 # import geopandas as gpd
 # import matplotlib.pyplot as plt
