@@ -57,7 +57,7 @@ def get_nearby_oas(engine, latitude, longitude, radius_km=1.0):
   #oas_df = oas.DataFrame()
   oas_df = pd.read_sql_query(query, con=engine)
   oas_df.columns = ["oa21cd", "lat", "lon"]
-  oas_set = set(oas_df["oa21cd"])
+  oas_set = tuple(set(oas_df["oa21cd"]))
 
   #urban_classificaton = %sql SELECT * FROM rural_urban_data WHERE oa21cd IN :oas_set;
   #urban_classificaton_df = urban_classificaton.DataFrame()
