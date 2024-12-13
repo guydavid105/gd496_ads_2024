@@ -95,7 +95,7 @@ def nearest_oa(pois_df, oa_df):
 
   return pois_df_new
 
-def pois_by_oa(oas, pois_df, keys):
+def pois_by_oa(oas, pois_df, keys, scaler):
   oa_gdf_points = gpd.GeoDataFrame(oas, geometry=gpd.points_from_xy(oas['lon'], oas['lat']), crs="EPSG:3857")
   pois_gdf = gpd.GeoDataFrame(pois_df, geometry=gpd.points_from_xy(pois_df['lon'], pois_df['lat']),crs="EPSG:3857")
 
@@ -132,7 +132,7 @@ def get_postcodes_from_oas(engine, oas):
   postcodes_df.columns = ["oa21cd", "postcode"]
   return postcodes_df
 
-def get_house_transactions_from_oas(engine, oas):
+def get_house_transactions_from_oas(engine, oas, scaler):
   postcodes = get_postcodes_from_oas(oas)
   postcodes_set = tuple(set(postcodes["postcode"]))
   #%sql USE `ads_2024`;
@@ -166,7 +166,7 @@ def election_from_oas(engine, oas):
   election_oa_df.columns = ["oa21cd", "party", "share"]
   return election_oa_df
 
-def census_from_oas(engine, oas):
+def census_from_oas(engine, oas, scaler):
   oas_set = tuple(set(oas["oa21cd"]))
   #%sql USE `ads_2024`;
   #l4 = %sql SELECT OA21CD, L4, total FROM qualification_data WHERE OA21CD IN :oas_set;
@@ -191,7 +191,7 @@ def alpha(val):
   else:
     return val
 
-def plot_oas_election(df, oa_gdf, fig_ax=None, pos=None):
+def plot_oas_election(df, oa_gdf, party_colors, fig_ax=None, pos=None):
   share_col = df["share"]
   df["norm_share"] = (share_col - share_col.min()) / (share_col.max() - share_col.min())
   oa_gdf = oa_gdf.merge(df, on="oa21cd")
