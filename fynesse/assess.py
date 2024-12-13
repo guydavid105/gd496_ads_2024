@@ -11,8 +11,6 @@ import sklearn.decomposition as decomposition
 import sklearn.feature_extraction"""
 
 """Place commands in this file to assess the data you have downloaded. How are missing values encoded, how are outliers encoded? What do columns represent, makes rure they are correctly labeled. How is the data indexed. Crete visualisation routines to assess the data (e.g. in bokeh). Ensure that date formats are correct and correctly timezoned."""
-%load_ext sql
-%config SqlMagic.style = '_DEPRECATED_DEFAULT'
 
 def string_to_dict(tag_string):
     tag_string = tag_string[1:-1]
@@ -49,7 +47,7 @@ def get_nearby_oas(latitude, longitude, radius_km=1.0):
   min_lat, max_lat = latitude-(radius_km*km_dg), latitude+(radius_km*km_dg)
   min_lon, max_lon = longitude-(radius_km*km_dg), longitude+(radius_km*km_dg)
 
-  %sql USE `ads_2024`;
+  #%sql USE `ads_2024`;
   oas = %sql SELECT OA21CD, LAT, LON FROM oa_data WHERE LAT BETWEEN :min_lat AND :max_lat AND LON BETWEEN :min_lon AND :max_lon;
   oas_df = oas.DataFrame()
   oas_df.columns = ["oa21cd", "lat", "lon"]
