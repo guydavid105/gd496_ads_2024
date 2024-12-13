@@ -5,6 +5,8 @@ import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
+from scipy.spatial import cKDTree
+import numpy as np
 
 """These are the types of import we might expect in this file
 import pandas
@@ -121,7 +123,7 @@ def pois_by_oa(oas, pois_df):
   return oas_with_counts
 
 def get_postcodes_from_oas(engine, oas):
-  oas_set = set(oas['oa21cd'])
+  oas_set = tuple(set(oas['oa21cd']))
   #%sql USE `ads_2024`;
   #postcodes = %sql SELECT oa21cd, pcd7 FROM postcode_oa_lookup WHERE oa21cd in :oas_set;
   #postcodes_df = postcodes.DataFrame()
@@ -132,7 +134,7 @@ def get_postcodes_from_oas(engine, oas):
 
 def get_house_transactions_from_oas(engine, oas):
   postcodes = get_postcodes_from_oas(oas)
-  postcodes_set = set(postcodes["postcode"])
+  postcodes_set = tuple(set(postcodes["postcode"]))
   #%sql USE `ads_2024`;
   #houses = %sql SELECT price, postcode, property_type FROM prices_coordinates_data WHERE postcode in :postcodes_set;
   #houses_df = houses.DataFrame()
@@ -155,7 +157,7 @@ def get_house_transactions_from_oas(engine, oas):
   return oas_with_prices
 
 def election_from_oas(engine, oas):
-  oas_set = set(oas["oa21cd"])
+  oas_set = tuple(set(oas["oa21cd"]))
   #%sql USE `ads_2024`;
   #election_oa = %sql SELECT OA21CD, Partyname, Share FROM election_data WHERE OA21CD in :oas_set;
   #election_oa_df = election_oa.DataFrame()
@@ -165,7 +167,7 @@ def election_from_oas(engine, oas):
   return election_oa_df
 
 def census_from_oas(engine, oas):
-  oas_set = set(oas["oa21cd"])
+  oas_set = tuple(set(oas["oa21cd"]))
   #%sql USE `ads_2024`;
   #l4 = %sql SELECT OA21CD, L4, total FROM qualification_data WHERE OA21CD IN :oas_set;
   #l4_df = l4.DataFrame()
