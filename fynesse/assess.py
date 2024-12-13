@@ -1,6 +1,10 @@
 from .config import *
 
 from . import access
+import geopandas as gpd
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
 
 """These are the types of import we might expect in this file
 import pandas
