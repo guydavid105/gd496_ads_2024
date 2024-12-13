@@ -133,7 +133,7 @@ def get_postcodes_from_oas(engine, oas):
   return postcodes_df
 
 def get_house_transactions_from_oas(engine, oas, scaler):
-  postcodes = get_postcodes_from_oas(oas)
+  postcodes = get_postcodes_from_oas(engine, oas)
   postcodes_set = tuple(set(postcodes["postcode"]))
   #%sql USE `ads_2024`;
   #houses = %sql SELECT price, postcode, property_type FROM prices_coordinates_data WHERE postcode in :postcodes_set;
