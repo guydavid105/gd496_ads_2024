@@ -8,6 +8,7 @@ import zipfile
 import io
 import os
 import pandas as pd
+import osmium
 # import osmnx as ox
 # import geopandas as gpd
 # import matplotlib.pyplot as plt
@@ -156,6 +157,38 @@ def download_census_data(year, code, base_dir=''):
     zip_ref.extractall(extract_dir)
 
   print(f"Files extracted to: {extract_dir}")
+
+class OSMHandler(osmium.SimpleHandler):
+    def __init__(self):
+        super().__init__()
+        self.nodes = []
+        self.ways = []
+        self.relations = []
+
+    def node(self, n):
+        if n.tags:
+          self.nodes.append({
+              'id': n.id,
+              'lat': n.location.lat,
+              'lon': n.location.lon,
+              'tags': dict(n.tags)
+          })
+
+    def way(self, w):
+        if w.tags:
+          self.ways.append({
+              'id': w.id,
+              'nodes': [n.ref for n in w.nodes],
+              'tags': dict(w.tags)
+          })
+
+    def relation(self, r):
+        if r.tags:
+          self.relations.append({
+              'id': r.id,
+              'members': [(m.ref, m.role) for m in r.members],
+              'tags': dict(r.tags)
+          })
 
 def load_census_data(year, code, level='msoa'):
   return pd.read_csv(f'census{year}-{code.lower()}/census{year}-{code.lower()}-{level}.csv')
