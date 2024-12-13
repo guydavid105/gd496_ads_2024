@@ -25,7 +25,7 @@ def string_to_dict(tag_string):
     except ValueError:
         return None
 
-def plot_elections(region, oa_gdf, engine):
+def plot_elections(region, oa_gdf, engine, party_colours):
   if region == None:
     query = "SELECT * FROM election_data"
   else:
