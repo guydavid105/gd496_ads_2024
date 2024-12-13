@@ -11,6 +11,8 @@ import sklearn.decomposition as decomposition
 import sklearn.feature_extraction"""
 
 """Place commands in this file to assess the data you have downloaded. How are missing values encoded, how are outliers encoded? What do columns represent, makes rure they are correctly labeled. How is the data indexed. Crete visualisation routines to assess the data (e.g. in bokeh). Ensure that date formats are correct and correctly timezoned."""
+%load_ext sql
+%config SqlMagic.style = '_DEPRECATED_DEFAULT'
 
 def string_to_dict(tag_string):
     tag_string = tag_string[1:-1]
