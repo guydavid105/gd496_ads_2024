@@ -95,7 +95,7 @@ def nearest_oa(pois_df, oa_df):
 
   return pois_df_new
 
-def pois_by_oa(oas, pois_df):
+def pois_by_oa(oas, pois_df, keys):
   oa_gdf_points = gpd.GeoDataFrame(oas, geometry=gpd.points_from_xy(oas['lon'], oas['lat']), crs="EPSG:3857")
   pois_gdf = gpd.GeoDataFrame(pois_df, geometry=gpd.points_from_xy(pois_df['lon'], pois_df['lat']),crs="EPSG:3857")
 
