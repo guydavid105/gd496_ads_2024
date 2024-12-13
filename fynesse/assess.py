@@ -25,7 +25,7 @@ def string_to_dict(tag_string):
     except ValueError:
         return None
 
-def plot_elections(region, oa_gdf):
+def plot_elections(region, oa_gdf, engine):
   if region == None:
     query = "SELECT * FROM election_data"
   else:
@@ -46,7 +46,7 @@ def plot_elections(region, oa_gdf):
   ax.legend(handles=legend_elements, title="Winning Party", loc="lower left")
   plt.show()
 
-def get_nearby_oas(latitude, longitude, radius_km=1.0):
+def get_nearby_oas(engine, latitude, longitude, radius_km=1.0):
   km_dg = 1/111
   min_lat, max_lat = latitude-(radius_km*km_dg), latitude+(radius_km*km_dg)
   min_lon, max_lon = longitude-(radius_km*km_dg), longitude+(radius_km*km_dg)
@@ -67,7 +67,7 @@ def get_nearby_oas(latitude, longitude, radius_km=1.0):
 
   return oas_df
 
-def get_pois_radius(latitude, longitude, radius_km=1.0):
+def get_pois_radius(engine, latitude, longitude, radius_km=1.0):
   km_dg = 1/111
   min_lat, max_lat = latitude-(radius_km*km_dg), latitude+(radius_km*km_dg)
   min_lon, max_lon = longitude-(radius_km*km_dg), longitude+(radius_km*km_dg)
@@ -120,7 +120,7 @@ def pois_by_oa(oas, pois_df):
   oas_with_counts = oas_with_counts[["oa21cd"] + columns_to_normalize]
   return oas_with_counts
 
-def get_postcodes_from_oas(oas):
+def get_postcodes_from_oas(engine, oas):
   oas_set = set(oas['oa21cd'])
   #%sql USE `ads_2024`;
   #postcodes = %sql SELECT oa21cd, pcd7 FROM postcode_oa_lookup WHERE oa21cd in :oas_set;
@@ -130,7 +130,7 @@ def get_postcodes_from_oas(oas):
   postcodes_df.columns = ["oa21cd", "postcode"]
   return postcodes_df
 
-def get_house_transactions_from_oas(oas):
+def get_house_transactions_from_oas(engine, oas):
   postcodes = get_postcodes_from_oas(oas)
   postcodes_set = set(postcodes["postcode"])
   #%sql USE `ads_2024`;
@@ -154,7 +154,7 @@ def get_house_transactions_from_oas(oas):
   oas_with_prices = oas_with_prices.drop(columns=["lat", "lon", "urban"])
   return oas_with_prices
 
-def election_from_oas(oas):
+def election_from_oas(engine, oas):
   oas_set = set(oas["oa21cd"])
   #%sql USE `ads_2024`;
   #election_oa = %sql SELECT OA21CD, Partyname, Share FROM election_data WHERE OA21CD in :oas_set;
@@ -164,7 +164,7 @@ def election_from_oas(oas):
   election_oa_df.columns = ["oa21cd", "party", "share"]
   return election_oa_df
 
-def census_from_oas(oas):
+def census_from_oas(engine, oas):
   oas_set = set(oas["oa21cd"])
   #%sql USE `ads_2024`;
   #l4 = %sql SELECT OA21CD, L4, total FROM qualification_data WHERE OA21CD IN :oas_set;
